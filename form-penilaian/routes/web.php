@@ -38,4 +38,8 @@ Route::post('/', [AuthController::class, 'login']);
 // route karyawan
 Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan');
 
-Route::get('/nilaimahasiswa/{id_mahasiswa}', [KaryawanController::class, 'nilaimahasiswa'])->name('nilaimahasiswa');
+Route::get('/nilaimahasiswa/{id}', [KaryawanController::class, 'nilaimahasiswa'])->name('nilaimahasiswa');
+
+Route::get('/berinilai/{id}', [KaryawanController::class, 'berinilai'])->name('berinilai');
+
+Route::post('/simpannilai/{id}', [KaryawanController::class, 'storepenilaian'])->name('simpannilai');

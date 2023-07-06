@@ -25,7 +25,7 @@
           </div>
           <div class="row">
             <div class="col-md-6">
-              <a href="" type="button" class="btn btn-success btn-sm">Nilai</a>
+              <a href="/berinilai/{{ $data->id_mahasiswa }}" type="button" class="btn btn-success btn-sm">Nilai</a>
             </div>
             <div class="col-md-6">
               <a href="" type="button" class="btn btn-secondary btn-sm">Lihat Nilai</a>

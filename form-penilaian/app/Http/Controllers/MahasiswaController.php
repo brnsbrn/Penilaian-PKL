@@ -9,8 +9,9 @@ class MahasiswaController extends Controller
 {
     public function index(){
         $data = Mahasiswa::all();
-        return view('admin.mahasiswa', compact('data'));
+        return view('admin.dashboard', compact('data'));
     }
+
 
     public function tambahmahasiswa() {
         return view('admin.tambahmahasiswa');
@@ -18,7 +19,7 @@ class MahasiswaController extends Controller
 
     public function insertmahasiswa(Request $request) {
         Mahasiswa::create($request->all());
-        return redirect()->route('mahasiswa')->with('success', 'Data Berhasil Ditambahkan');
+        return redirect()->route('admin')->with('success', 'Data Berhasil Ditambahkan');
     }
 
     public function tampildata($id_mahasiswa) {
@@ -29,12 +30,17 @@ class MahasiswaController extends Controller
     public function updatedata(Request $request, $id_mahasiswa) {
         $data = Mahasiswa::find($id_mahasiswa);
         $data->update($request->all());
-        return redirect()->route('mahasiswa')->with('success', 'Data Berhasil Diubah');
+        return redirect()->route('admin')->with('success', 'Data Berhasil Diubah');
     }
 
     public function deletedata($id_mahasiswa) {
         $data = Mahasiswa::find($id_mahasiswa);
         $data -> delete();
-        return redirect()->route('mahasiswa')->with('success', 'Data Berhasil Dihapus');
+        return redirect()->route('admin')->with('success', 'Data Berhasil Dihapus');
+    }
+
+    public function showmahasiswa($id_mahasiswa) {
+        $data = Mahasiswa::find($id_mahasiswa);
+        return view('admin.showmahasiswa', compact('data'));
     }
 }

@@ -65,6 +65,9 @@
               @enderror
             </div>
             <button type="submit" class="btn btn-primary">Login</button>
+            <div class='form-group'>
+              <a href='/register'>Register Here</a>
+            </div>
           </form>
         </div>
       </div>

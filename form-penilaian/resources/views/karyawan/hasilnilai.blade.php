@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Karyawan | Data Mahasiswa PKL</title>
+    <title>Karyawan | Hasil Penilaian</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
   </head>
   <body>
@@ -12,22 +12,25 @@
             <table class="table">
                 <thead>
                     <tr>
-                    <th scope="col">No</th>
-                    <th scope="col">Nama</th>
-                    <th scope="col">Asal Instansi</th>
-                    <th scope="col">Divisi</th>
+                        <th scope='col'>No</th>
+                        <th scope='col'>Nama Mahasiswa</th>
+                        <th scope='col'>Kedisiplinan</th>
+                        <th scope='col'>Kinerja Kerja</th>
+                        <th scope='col'>Kerapian</th>
+                        <th scope='col'>Kesopanan</th>
+                        <th scope='col'>Komentar</th>
                     </tr>
                 </thead>
                 <tbody>
-                @php
-                    $no = 1;
-                @endphp
-                @foreach($data as $row)
+                @foreach($hasilPenilaian as $index => $penilaian)
                     <tr>
-                        <th scope="row">{{ $no++ }}</th>
-                        <td><a href='/nilaimahasiswa/{{ $row->id_mahasiswa }}'>{{ $row->nama_mahasiswa }}</a></td>
-                        <td>{{ $row->asal_instansi }}</td>
-                        <td>{{ $row->divisi_pkl }}</td>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $penilaian->nama_mahasiswa }}</td>
+                        <td>{{ $penilaian->kedisiplinan }}</td>
+                        <td>{{ $penilaian->kinerja_kerja }}</td>
+                        <td>{{ $penilaian->kerapian }}</td>
+                        <td>{{ $penilaian->kesopanan }}</td>
+                        <td>{{ $penilaian->komentar }}</td>
                     </tr>  
                 @endforeach
                 </tbody>

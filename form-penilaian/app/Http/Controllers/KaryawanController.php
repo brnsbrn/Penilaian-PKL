@@ -78,4 +78,18 @@ class KaryawanController extends Controller
         // Setelah berhasil menyimpan penilaian, Anda dapat melakukan redirect atau menampilkan pesan sukses, sesuai dengan kebutuhan aplikasi Anda.
     }
 
+    public function hasilPenilaian($id)
+    {
+        $id_user = session('id');
+        $id = $id;
+
+        $hasilPenilaian = Penilaian::where('penilaian.user_id', $id_user)
+            ->where('penilaian.id_mahasiswa', $id)
+            ->join('mahasiswas', 'penilaian.id_mahasiswa', '=', 'mahasiswas.id_mahasiswa')
+            ->select('penilaian.*', 'mahasiswas.nama_mahasiswa')
+            ->get();
+
+        return view('karyawan.hasilnilai', ['hasilPenilaian' => $hasilPenilaian], ['id' => $id]);
+    }
+
 }

@@ -2,16 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserData;
+use App\Models\Mahasiswa;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Mahasiswa;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     function index()
     {
         return view('login.login');
+    }
+
+    public function regis() {
+        return view('login.register');
+    }
+
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $user = new User();
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->password = Hash::make($request->input('password'));
+        $user->role = 'karyawan'; // Set role default
+        $user->save();
+
+        return redirect()->route('login')->with('success', 'Registrasi berhasil. Silakan login dengan akun Anda.');
     }
 
     function login(Request $request)
@@ -39,6 +67,13 @@ class AuthController extends Controller
                 'email' => 'Email atau Password salah'
             ]);
         }
+    }
+
+    public function logout() {
+        Auth::logout();
+        session()->flush();
+
+        return redirect()->route('login');
     }
 
 

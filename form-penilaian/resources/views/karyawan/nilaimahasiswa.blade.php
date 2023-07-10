@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dummy Data</title>
+    <title>Karyawan | Data Mahasiswa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
   </head>
   <body>
-    <h1 class='text-center mb-4'>Data Siswa PKL</h1>
+    <h1 class='text-center mb-4'>Data Mahasiswa PKL</h1>
     <div class="container">
       <div class="card">
         <div class="card-body">
@@ -28,7 +28,7 @@
               <a href="/berinilai/{{ $data->id_mahasiswa }}" type="button" class="btn btn-success btn-sm">Nilai</a>
             </div>
             <div class="col-md-6">
-              <a href="" type="button" class="btn btn-secondary btn-sm">Lihat Nilai</a>
+              <a href="/hasilpenilaian/ {{ $data->id_mahasiswa }}" type="button" class="btn btn-secondary btn-sm">Lihat Nilai</a>
             </div>
           </div>
         </div>

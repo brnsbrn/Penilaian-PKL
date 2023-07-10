@@ -10,6 +10,14 @@
     <h1 class='text-center mb-4'>Data Siswa PKL</h1>
     <div class='container'>
         <a href='/tambahmahasiswa' class="btn btn-primary">Tambah +</a>
+        <div class="row g-3 align-items-center mt-1">
+            <div class="col-auto">
+            <form action='/homeadmin' method="GET">
+                <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}">
+
+            </form>
+            </div>
+        </div>
         <div class='row'>
         @if($message = Session::get('success'))
         <div class="alert alert-success mt-3 mb-2" role="alert">

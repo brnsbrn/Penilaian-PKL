@@ -19,6 +19,7 @@
                         <th scope='col'>Kerapian</th>
                         <th scope='col'>Kesopanan</th>
                         <th scope='col'>Komentar</th>
+                        <th scope='col'>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,6 +32,7 @@
                         <td>{{ $penilaian->kerapian }}</td>
                         <td>{{ $penilaian->kesopanan }}</td>
                         <td>{{ $penilaian->komentar }}</td>
+                        <td><a href="/ubahnilai/{{ $penilaian->id_penilaian }}" class="btn btn-primary btn-sm">Ubah Nilai</a></td>
                     </tr>  
                 @endforeach
                 </tbody>

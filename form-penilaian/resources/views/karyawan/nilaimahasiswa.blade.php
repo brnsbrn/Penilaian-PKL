@@ -25,12 +25,17 @@
           </div>
           <div class="row">
             <div class="col-md-6">
-              <a href="/berinilai/{{ $data->id_mahasiswa }}" type="button" class="btn btn-success btn-sm">Nilai</a>
+                <a href="/berinilai/{{ $data->id_mahasiswa }}" type="button" class="btn btn-success btn-sm">Nilai</a>
             </div>
             <div class="col-md-6">
               <a href="/hasilpenilaian/ {{ $data->id_mahasiswa }}" type="button" class="btn btn-secondary btn-sm">Lihat Nilai</a>
             </div>
           </div>
+          @if($errors->has('penilaian'))
+            <div class="alert alert-danger mt-1">
+                {{ $errors->first('penilaian') }}
+            </div>
+            @endif
         </div>
       </div>
     </div>

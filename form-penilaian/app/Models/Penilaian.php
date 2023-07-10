@@ -11,6 +11,8 @@ class Penilaian extends Model
 {
     protected $table = 'penilaian';
 
+    protected $primaryKey = 'id_penilaian';
+
     protected $fillable = [
         'user_id',
         'id_mahasiswa',

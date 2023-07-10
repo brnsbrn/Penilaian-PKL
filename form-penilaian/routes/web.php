@@ -50,3 +50,8 @@ Route::get('/berinilai/{id}', [KaryawanController::class, 'berinilai'])->name('b
 Route::post('/simpannilai/{id}', [KaryawanController::class, 'storepenilaian'])->name('simpannilai');
 
 Route::get('/hasilpenilaian/{id}', [KaryawanController::class, 'hasilPenilaian'])->name('hasilpenilaian');
+
+Route::get('/ubahnilai/{id_penilaian}', [KaryawanController::class, 'ubahNilai'])->name('ubahnilai');
+
+Route::post('/simpanubahnilai/{id_penilaian}', [KaryawanController::class, 'simpanUbahNilai'])->name('simpanubahnilai');
+

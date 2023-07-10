@@ -65,7 +65,7 @@ class AuthController extends Controller
         } else {
             return back()->withErrors([
                 'email' => 'Email atau Password salah'
-            ]);
+            ])->withInput();
         }
     }
 

@@ -33,45 +33,33 @@
           color: red;
           margin-top: 10px;
         }
-      </style>    
+    </style>    
 </head>
 <body>
     <div class="container">
         <div class="login-form">
-          <h2>Halaman Login</h2>
-          @if ($errors->any())
-            <div class="error-message">
-              <ul>
-                @foreach ($errors->all() as $error)
-                  <li>{{ $error }}</li>
-                @endforeach
-              </ul>
-            </div>
-          @endif
-          <form method="POST" action="">
-            @csrf
-            <div class="form-group">
-              <label for="email">Email:</label>
-              <input type="email" class="form-control" id="email" placeholder="Masukkan email" name="email" value="{{ old('email') }}">
-              @error('email')
-                <div class="error-message">{{ $message }}</div>
-              @enderror
-            </div>
-            <div class="form-group">
-              <label for="password">Password:</label>
-              <input type="password" class="form-control" id="password" placeholder="Masukkan password" name="password">
-              @error('password')
-                <div class="error-message">{{ $message }}</div>
-              @enderror
-            </div>
-            <button type="submit" class="btn btn-primary">Login</button>
-            <div class='form-group'>
-              <a href='/register'>Register Here</a>
-            </div>
-          </form>
+            <h2>Halaman Login</h2>
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" class="form-control" id="email" placeholder="Masukkan email" name="email" value="{{ old('email') }}">                    
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" id="password" placeholder="Masukkan password" name="password">
+                </div>
+                @error('email')
+                        <div class="error-message">{{ $message }}</div>
+                @enderror
+                <button type="submit" class="btn btn-primary">Login</button>
+                <div class='form-group'>
+                    <a href='/register'>Register Here</a>
+                </div>
+            </form>
         </div>
-      </div>
-      
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </div>
+    
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

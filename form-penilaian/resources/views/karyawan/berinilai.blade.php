@@ -29,6 +29,12 @@
                 <label for="komentar">Berikan Komentar:</label>
                 <textarea class="form-control" id="komentar" name="komentar" rows="3"></textarea>
             </div>
+            @if($errors->has('komentar'))
+            <div class='alert alert-danger'>
+                {{ $errors->first('komentar') }}
+            </div>
+                
+            @endif
             <button type="submit" class="btn btn-primary">Simpan</button>
         </form>
     </div>

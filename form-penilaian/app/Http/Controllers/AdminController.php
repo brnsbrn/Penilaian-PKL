@@ -7,11 +7,18 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function index(){
-        $data = Mahasiswa::all();
+    public function index(Request $request)
+    {
+        if ($request->has('search')) {
+            $search = $request->search;
+            $data = Mahasiswa::where('nama_mahasiswa', 'LIKE', '%' . $search . '%')->get();
+        } else {
+            $data = Mahasiswa::all();
+        }
+        
         return view('admin.dashboard', compact('data'));
     }
-
+    
 
     public function tambahmahasiswa() {
         return view('admin.tambahmahasiswa');

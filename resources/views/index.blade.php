@@ -16,7 +16,7 @@
                 <div class='card-body'>
                     <h1 class='text-center mb-4'>Welkam {{ session('name') }}</h1>
                     <h5 class='text-center'>Ini adalah sistem informasi untuk penilaian siswa pkl di Bankaltim. Silahkan lakukan penilaian pad mahasiswa dengan menekan tombol di bawah ini.</h5>
-                    <a href='/homekaryawan'><button type="button" class="btn btn-primary">Beri Nilai</button></a>
+                    <a href='/depan'><button type="button" class="btn btn-primary">Klik Untuk Lanjutkan</button></a>
                 </div>
             </div>
         </div>
@@ -43,8 +43,7 @@
                 <div class='card-body'>
                     <h1 class='text-center mb-4'>Welkam {{ session('name') }}</h1>
                     <h5 class='text-center'>Ini adalah sistem informasi untuk penilaian siswa pkl di Bankaltim. Silahkan Tambahkan, hapus, atau edit data mahasiswa yang melakukan pkl pada tombol di bawah ini.</h5>
-                    <a href='/homeadmin'><button type="button" class="btn btn-primary center">Lihat Data</button></a>
-                    <a href='/logout'><button type="button" class="btn btn-primary center">Logout</button></a>
+                    <a href='/index'><button type="button" class="btn btn-primary center">Klik Untuk Lanjutkan</button></a>
                 </div>
             </div>
         </div>

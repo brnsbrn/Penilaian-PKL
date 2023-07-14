@@ -6,10 +6,25 @@ use App\Models\Mahasiswa;
 use App\Models\Penilaian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Carbon\Carbon;
 
 
 class KaryawanController extends Controller
 {
+
+    public function depan(){
+        $totaldata = Mahasiswa::count();
+        $tanggalTujuhHariSebelumnya = Carbon::now()->subDays(7);
+
+        $jumlahMahasiswaBaru = Mahasiswa::where('created_at', '>=', $tanggalTujuhHariSebelumnya)
+            ->count();
+
+        $jumlahMahasiswaLama = Mahasiswa::where('created_at', '<', $tanggalTujuhHariSebelumnya)
+            ->count();
+    
+        return view('karyawan.dashboardlte', compact('totaldata', 'jumlahMahasiswaBaru', 'jumlahMahasiswaLama'));
+    }
+
     public function index(){
         $data = Mahasiswa::all();
         
@@ -87,7 +102,7 @@ class KaryawanController extends Controller
 
         if ($existingPenilaian) {
         // Jika penilaian sudah ada, karyawan tidak diizinkan untuk menilai lagi
-        return redirect()->route('nilaimahasiswa', ['id' => $id])->withErrors(['penilaian' => 'Anda telah memberikan penilaian untuk mahasiswa ini.']);
+        return redirect()->route('homekaryawan')->withErrors(['penilaian' => 'Anda telah memberikan penilaian untuk mahasiswa ini.']);
         }
         // Simpan data penilaian ke dalam tabel "penilaian"
         $penilaian = new Penilaian();
@@ -99,7 +114,7 @@ class KaryawanController extends Controller
         $penilaian->kesopanan = $request->sopansantun;
         $penilaian->komentar = $request->komentar;
         $penilaian->save();
-        return redirect()->route('nilaimahasiswa', ['id' => $id], compact('penilaianStatus'))->with('success', 'Penilaian berhasil disimpan.');
+        return redirect()->route('homekaryawan')->with('success', 'Penilaian berhasil disimpan.');
 
         // Setelah berhasil menyimpan penilaian, Anda dapat melakukan redirect atau menampilkan pesan sukses, sesuai dengan kebutuhan aplikasi Anda.
     }
@@ -163,7 +178,7 @@ class KaryawanController extends Controller
         $penilaian->komentar = $request->komentar;
         $penilaian->save();
     
-        return redirect()->route('nilaimahasiswa', ['id' => $penilaian->id_mahasiswa])->with('success', 'Nilai berhasil diubah.');
+        return redirect()->route('homekaryawan')->with('success', 'Nilai berhasil diubah.');
     }      
 
 }

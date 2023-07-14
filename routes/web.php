@@ -17,8 +17,11 @@ use App\Http\Middleware\CheckRole;
 |
 */
 
+
 // route admin
 Route::middleware(['auth', 'checkrole:admin'])->group(function () {
+    
+    Route::get('/index', [AdminController::class, 'halbaru']);
 
     Route::get('/homeadmin', [AdminController::class, 'index'])->name('admin');
     
@@ -48,6 +51,8 @@ Route::post('/regis', [AuthController::class, 'register'])->name('register');
 
 // route karyawan
 Route::middleware(['auth', 'checkrole:karyawan'])->group(function () {
+
+    Route::get('/depan', [KaryawanController::class, 'depan']);
     
     Route::get('/homekaryawan', [KaryawanController::class, 'index'])->name('homekaryawan');
 
@@ -62,5 +67,9 @@ Route::middleware(['auth', 'checkrole:karyawan'])->group(function () {
     Route::post('/simpannilai/{id}', [KaryawanController::class, 'storepenilaian'])->name('simpannilai');
 
     Route::get('/hasilpenilaian/{id}', [KaryawanController::class, 'hasilPenilaian'])->name('hasilpenilaian');
+
+    Route::get('/ubahnilai/{id_penilaian}', [KaryawanController::class, 'ubahNilai'])->name('ubahnilai');
+
+    Route::post('/simpanubahnilai/{id_penilaian}', [KaryawanController::class, 'simpanUbahNilai'])->name('simpanubahnilai');
 });
 

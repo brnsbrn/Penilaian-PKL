@@ -4,9 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AdminController extends Controller
-{
+{   
+    public function halbaru(){
+        $totaldata = Mahasiswa::count();
+        $tanggalTujuhHariSebelumnya = Carbon::now()->subDays(7);
+
+        $jumlahMahasiswaBaru = Mahasiswa::where('created_at', '>=', $tanggalTujuhHariSebelumnya)
+            ->count();
+
+        $jumlahMahasiswaLama = Mahasiswa::where('created_at', '<', $tanggalTujuhHariSebelumnya)
+            ->count();
+    
+        return view('admin.dashboardlte', compact('totaldata', 'jumlahMahasiswaBaru', 'jumlahMahasiswaLama'));
+    }
+    
     public function index(Request $request)
     {
         if ($request->has('search')) {

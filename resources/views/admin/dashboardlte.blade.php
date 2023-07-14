@@ -1,4 +1,12 @@
-<div class="content-wrapper">
+@extends('layout.admin')
+
+@section('content')
+
+
+  
+@endsection
+ @push('scripts')
+ <div class="content-wrapper" style="margin-top: 70px">
     <!-- Content Header (Page header) -->
     {{-- <div class="content-header">
       <div class="container-fluid">
@@ -24,13 +32,13 @@
         <div class="row">
           <div class="col-12 col-sm-6 col-md-3">
             <div class="info-box">
-              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cog"></i></span>
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-users"></i></span>
 
               <div class="info-box-content">
-                <span class="info-box-text">CPU Traffic</span>
+                <span class="info-box-text">Total Jumlah Pelajar PKL</span>
                 <span class="info-box-number">
-                  10
-                  <small>%</small>
+                  {{ $totaldata }}
+                  <small>Pelajar PKL</small>
                 </span>
               </div>
               <!-- /.info-box-content -->
@@ -40,11 +48,11 @@
           <!-- /.col -->
           <div class="col-12 col-sm-6 col-md-3">
             <div class="info-box mb-3">
-              <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-up"></i></span>
+              <span class="info-box-icon bg-danger elevation-1"><i class="fa-solid fa-person-walking"></i></span>
 
               <div class="info-box-content">
-                <span class="info-box-text">Likes</span>
-                <span class="info-box-number">41,410</span>
+                <span class="info-box-text">Pelajar PKL Baru</span>
+                <span class="info-box-number">{{ $jumlahMahasiswaBaru }}</span>
               </div>
               <!-- /.info-box-content -->
             </div>
@@ -57,11 +65,11 @@
 
           <div class="col-12 col-sm-6 col-md-3">
             <div class="info-box mb-3">
-              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+              <span class="info-box-icon bg-success elevation-1"><i class="fa-solid fa-building-user"></i></i></span>
 
               <div class="info-box-content">
-                <span class="info-box-text">Sales</span>
-                <span class="info-box-number">760</span>
+                <span class="info-box-text">Pelajar PKL Lama</span>
+                <span class="info-box-number">{{ $jumlahMahasiswaLama }}</span>
               </div>
               <!-- /.info-box-content -->
             </div>
@@ -84,7 +92,7 @@
         </div>
         <!-- /.row -->
 
-        <div class="row">
+        {{-- <div class="row">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
@@ -553,7 +561,7 @@
             <!-- /.row -->
 
             <!-- TABLE: LATEST ORDERS -->
-            <div class="card">
+            <div class="card mb-5">
               <div class="card-header border-transparent">
                 <h3 class="card-title">Latest Orders</h3>
 
@@ -847,12 +855,13 @@
             <!-- /.card -->
           </div>
           <!-- /.col -->
-        </div>
+        </div> --}}
         <!-- /.row -->
       </div><!--/. container-fluid -->
     </section>
     <!-- /.content -->
   </div>
-</div>
+ @endpush 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+ {{-- Script for fontawesome-free --}}
+<script src="https://kit.fontawesome.com/03fdf8347a.js" crossorigin="anonymous"></script>

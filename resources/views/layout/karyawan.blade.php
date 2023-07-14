@@ -511,7 +511,7 @@
             </ul>
           </li> --}}
           <li class="nav-item">
-            <a href="/index" class="nav-link">
+            <a href="/depan" class="nav-link">
               <i class="nav-icon fas fa-book"></i>
               <p>
                 Dashboard
@@ -581,7 +581,7 @@
             </ul> --}}
           </li>
           <li class="nav-item">
-            <a href="/homeadmin" class="nav-link">
+            <a href="/homekaryawan" class="nav-link">
               <i class="nav-icon far fa-plus-square"></i>
               <p>
                 Data Pelajar PKL

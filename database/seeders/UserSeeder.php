@@ -20,18 +20,21 @@ class UserSeeder extends Seeder
                 'email' => 'admin@example.com',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
+                'no_telp' => '089588776655'
             ],
             [
                 'name' => 'Karyawan',
                 'email' => 'karyawan@example.com',
                 'password' => Hash::make('password'),
                 'role' => 'karyawan',
+                'no_telp' => '081122334455'
             ],
             [
                 'name' => 'Mahasiswa',
                 'email' => 'mahasiswa@example.com',
                 'password' => Hash::make('password'),
-                'role' => 'mahasiswa',   
+                'role' => 'mahasiswa', 
+                'no_telp' => '081234567890'  
             ]
         ]);
     }

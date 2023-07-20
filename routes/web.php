@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MahasiswaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckRole;
 
@@ -71,5 +72,13 @@ Route::middleware(['auth', 'checkrole:karyawan'])->group(function () {
     Route::get('/ubahnilai/{id_penilaian}', [KaryawanController::class, 'ubahNilai'])->name('ubahnilai');
 
     Route::post('/simpanubahnilai/{id_penilaian}', [KaryawanController::class, 'simpanUbahNilai'])->name('simpanubahnilai');
+
+    Route::get('/search', [KaryawanController::class, 'search'])->name('karyawan.search');
+
 });
 
+
+// route mahasiswa
+Route::middleware(['auth', 'checkrole:mahasiswa'])->group(function (){
+    Route::get('/penilaian', [MahasiswaController::class, 'showPenilaian'])->name('penilaian');
+});

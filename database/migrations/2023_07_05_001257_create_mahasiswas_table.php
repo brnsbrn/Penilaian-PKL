@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama_mahasiswa');
             $table->string('asal_instansi');
             $table->string('divisi_pkl');
-            $table->bigInteger('no_telp');
+            $table->string('no_telp');
             $table->date('tanggal_mulai');
             $table->date('tanggal_berakhir');
             $table->timestamps();

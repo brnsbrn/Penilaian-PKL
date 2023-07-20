@@ -25,6 +25,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
+            'email' => 'required',
             'password' => 'required|min:6',
         ]);
 
@@ -35,8 +36,9 @@ class AuthController extends Controller
         $user = new User();
         $user->name = $request->input('name');
         $user->email = $request->input('email');
+        $user->no_telp = $request->input('no_telp');
         $user->password = Hash::make($request->input('password'));
-        $user->role = 'karyawan'; // Set role default
+        $user->role = $request->input('role');
         $user->save();
 
         return redirect()->route('login')->with('success', 'Registrasi berhasil. Silakan login dengan akun Anda.');
@@ -60,6 +62,7 @@ class AuthController extends Controller
             session(['role' => $user->role]);
             session(['id' => $user->id]);
             session(['name' => $user->name]);
+            session(['no_telp' => $user->no_telp]);
 
             return view('index');
         } else {

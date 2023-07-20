@@ -1,5 +1,6 @@
 @extends('layout.admin')
 
+@section('title', 'Admin | Edit Data')
 @section('content')
     <div class="content-wrapper">
         <div class="content-header">

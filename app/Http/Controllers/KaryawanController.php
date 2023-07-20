@@ -6,30 +6,79 @@ use App\Models\Mahasiswa;
 use App\Models\Penilaian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 
 class KaryawanController extends Controller
 {
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
 
-    public function depan(){
+        $data = Mahasiswa::where('nama_mahasiswa', 'LIKE', "%$search%")
+            ->paginate(5);
+
+        return view('karyawan.dashboard', compact('data', 'search'));
+    }
+
+    public function depan()
+    {
+        // Menghitung total data mahasiswa
         $totaldata = Mahasiswa::count();
+
+        // Menghitung jumlah mahasiswa yang baru memulai PKL dalam 7 hari terakhir
         $tanggalTujuhHariSebelumnya = Carbon::now()->subDays(7);
+        $jumlahMahasiswaBaru = Mahasiswa::where('tanggal_mulai', '>=', $tanggalTujuhHariSebelumnya)->count();
 
-        $jumlahMahasiswaBaru = Mahasiswa::where('created_at', '>=', $tanggalTujuhHariSebelumnya)
-            ->count();
+        // Menghitung jumlah mahasiswa yang telah lama memulai PKL sebelum 7 hari terakhir
+        $jumlahMahasiswaLama = Mahasiswa::where('tanggal_mulai', '<', $tanggalTujuhHariSebelumnya)->count();
 
-        $jumlahMahasiswaLama = Mahasiswa::where('created_at', '<', $tanggalTujuhHariSebelumnya)
-            ->count();
+        // Menghitung jumlah asal instansi yang berbeda
+        $totalAsalInstansi = DB::table('mahasiswas')->distinct('asal_instansi')->count('asal_instansi');
+
+        // Menghitung jumlah mahasiswa berdasarkan asal instansi
+        $dataAsalInstansi = Mahasiswa::select('asal_instansi', DB::raw('COUNT(*) as total'))
+            ->groupBy('asal_instansi')
+            ->paginate(5, ['*'], 'page_instansi') // Add pagination with 5 records per page, 'page_instansi' is the query parameter for the page number.
+            ->appends(request()->query()); // Append any existing query parameters to the pagination links.
+
+        // Menghitung jumlah mahasiswa berdasarkan divisi PKL
+        $dataDivisiPKL = Mahasiswa::select('divisi_pkl', DB::raw('COUNT(*) as total'))
+            ->groupBy('divisi_pkl')
+            ->paginate(5, ['*'], 'page_divisi') // Add pagination with 5 records per page, 'page_divisi' is the query parameter for the page number.
+            ->appends(request()->query());
+
+        return view('karyawan.dashboardlte', compact('totaldata', 'jumlahMahasiswaBaru', 'jumlahMahasiswaLama', 'totalAsalInstansi', 'dataAsalInstansi', 'dataDivisiPKL'));
+    }
+
     
-        return view('karyawan.dashboardlte', compact('totaldata', 'jumlahMahasiswaBaru', 'jumlahMahasiswaLama'));
+    public function index(){
+
+        $data = Mahasiswa::paginate(5);
+        
+        // Ambil ID mahasiswa yang ditampilkan
+        $studentIds = $data->pluck('id_mahasiswa')->toArray();
+
+        // Ambil ID mahasiswa yang sudah dinilai oleh pengguna yang sedang login
+        $ratedStudentIds = Penilaian::where('user_id', session('id'))
+                                    ->whereIn('id_mahasiswa', $studentIds)
+                                    ->pluck('id_mahasiswa')
+                                    ->toArray();
+
+        // Siapkan array asosiatif untuk menyimpan status untuk setiap mahasiswa
+        $studentStatus = [];
+        foreach ($studentIds as $id) {
+            if (in_array($id, $ratedStudentIds)) {
+                $studentStatus[$id] = 'Sudah Dinilai';
+            } else {
+                $studentStatus[$id] = 'Belum Dinilai';
+            }
+        }
+
+        return view('karyawan.dashboard', compact('data', 'studentStatus'));
     }
 
-    public function index(){
-        $data = Mahasiswa::all();
-        
-        return view('karyawan.dashboard', compact('data'));
-    }
 
     public function nilaimahasiswa($id_mahasiswa) {
         $data = Mahasiswa::find($id_mahasiswa);
@@ -93,6 +142,7 @@ class KaryawanController extends Controller
         // Dapatkan ID pengguna yang sedang login dari session
         $userId = session('id');
         $id = $id;
+
         
 
         // Periksa apakah penilaian sudah dilakukan sebelumnya
@@ -115,6 +165,8 @@ class KaryawanController extends Controller
         $penilaian->komentar = $request->komentar;
         $penilaian->save();
         return redirect()->route('homekaryawan')->with('success', 'Penilaian berhasil disimpan.');
+
+
 
         // Setelah berhasil menyimpan penilaian, Anda dapat melakukan redirect atau menampilkan pesan sukses, sesuai dengan kebutuhan aplikasi Anda.
     }

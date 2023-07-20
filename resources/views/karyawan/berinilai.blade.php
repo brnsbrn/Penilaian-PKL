@@ -1,5 +1,6 @@
 @extends('layout.karyawan')
 
+@section('title', 'Karyawan | Beri Nilai')
 @section('content')
 
 <div class="content-wrapper">

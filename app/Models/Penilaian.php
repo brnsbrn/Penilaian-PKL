@@ -32,4 +32,9 @@ class Penilaian extends Model
     {
         return $this->belongsTo(Mahasiswa::class, 'id_mahasiswa');
     }
+
+    public function penilai()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

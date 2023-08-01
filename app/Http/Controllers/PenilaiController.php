@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Sekolah;
 use App\Models\FormPenilaian;
 use App\Models\HasilPenilaian;
 use App\Models\Siswa;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -15,12 +18,57 @@ class PenilaiController extends Controller
 {
     public function index()
     {
-        return view('penilai.dashboard');
+        // Menghitung total data mahasiswa
+        $totaldata = Siswa::count();
+
+        // Menghitung jumlah mahasiswa yang baru memulai PKL dalam 7 hari terakhir
+        $today = date('Y-m-d');
+        $jumlahMasihPKL = Siswa::where('tanggal_berakhir', '>', $today)->count();
+
+        // Menghitung jumlah mahasiswa yang telah lama memulai PKL sebelum 7 hari terakhir
+        $jumlahSelesaiPKL = Siswa::where('tanggal_berakhir', '<=', $today)->count();
+
+        // Menghitung jumlah asal instansi yang berbeda
+        $totalsekolah = Sekolah::count();
+
+        // Menghitung jumlah mahasiswa berdasarkan asal instansi
+        $dataAsalInstansi = Siswa::select('id_sekolah', DB::raw('COUNT(*) as total'))
+            ->groupBy('id_sekolah')
+            ->paginate(5, ['*'], 'page_instansi') // Add pagination with 5 records per page, 'page_instansi' is the query parameter for the page number.
+            ->appends(request()->query()); // Append any existing query parameters to the pagination links.
+
+        // Menghitung jumlah mahasiswa berdasarkan divisi PKL
+        $dataDivisiPKL = Siswa::select('divisi_pkl', DB::raw('COUNT(*) as total'))
+            ->groupBy('divisi_pkl')
+            ->paginate(5, ['*'], 'page_divisi') // Add pagination with 5 records per page, 'page_divisi' is the query parameter for the page number.
+            ->appends(request()->query());
+
+        if (request()->has('page_total')) {
+            Paginator::currentPageResolver(function () {
+                return request()->query('page_total');
+            });
+        }
+
+        return view('penilai.dashboard', compact('totaldata', 'jumlahMasihPKL', 'jumlahSelesaiPKL', 'totalsekolah', 'dataAsalInstansi', 'dataDivisiPKL'));
     }
 
-    public function datasiswa()
+    public function datasiswa(Request $request)
     {
-        $data = Siswa::all();
+        $siswaQuery = Siswa::query();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $siswaQuery->where(function (Builder $query) use ($search) {
+                $query->where('nama_siswa', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Mengurutkan data siswa sesuai abjad berdasarkan nama siswa
+        $siswaQuery->orderBy('nama_siswa');
+
+        // Menampilkan data siswa dengan pagination
+        $data = $siswaQuery->paginate(5)->appends($request->query());
+
         return view('penilai.datasiswa', compact('data'));
     }
 
@@ -39,7 +87,7 @@ class PenilaiController extends Controller
     public function simpanNilai(Request $request, $id)
     {
         $request->validate([
-            'komentar' => 'required|string|max:255',
+            'komentar' => 'required|string',
         ]);
 
         $siswa = Siswa::findOrFail($id);
@@ -47,6 +95,15 @@ class PenilaiController extends Controller
 
         $formPenilaian = FormPenilaian::where('id_sekolah', $idSekolahSiswa)->firstOrFail();
         $kriteriaPenilaian = json_decode($formPenilaian->data_form);
+
+        // Check if the user has already submitted an evaluation for this student
+        $existingEvaluation = HasilPenilaian::where('id_user', Auth::id())
+        ->where('id_siswa', $id)
+        ->exists();
+
+        if ($existingEvaluation) {
+        return redirect()->route('penilai.datasiswa')->with('error', 'Anda sudah melakukan penilaian terhadap siswa ini sebelumnya.');
+        }
 
         $data_penilaian = [];
         foreach ($kriteriaPenilaian as $kriteria) {

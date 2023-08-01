@@ -18,7 +18,7 @@
                         <div class="info-box-content">
                             <span class="info-box-text">Total Jumlah Pelajar PKL</span>
                             <span class="info-box-number">
-                                
+                                {{ $totalsiswa }}
                                 <small>Pelajar PKL</small>
                             </span>
                         </div>
@@ -28,8 +28,8 @@
                     <div class="info-box mb-3">
                         <span class="info-box-icon bg-danger elevation-1"><i class="fa-solid fa-person-walking"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">Pelajar PKL Baru</span>
-                            <span class="info-box-number"></span>
+                            <span class="info-box-text">Siswa Masih PKL</span>
+                            <span class="info-box-number">{{$jumlahMasihPKL }}</span>
                         </div>
                     </div>
                 </div>
@@ -37,49 +37,8 @@
                     <div class="info-box mb-3">
                         <span class="info-box-icon bg-success elevation-1"><i class="fa-solid fa-building-user"></i></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">Pelajar PKL Lama</span>
-                            <span class="info-box-number"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="info-box mb-3">
-                        <span class="info-box-icon bg-warning elevation-1"><i class="fa-solid fa-building"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Jumlah Instansi</span>
-                            <span class="info-box-number"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabel - Persebaran Asal Instansi -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Persebaran Jumlah Asal Instansi Mahasiswa</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Asal Instansi</th>
-                                            <th>Jumlah Mahasiswa</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="d-flex justify-content-center mt-4">
-                                
-                            </div>
+                            <span class="info-box-text">Siswa Selesai PKL</span>
+                            <span class="info-box-number">{{$jumlahSelesaiPKL}}</span>
                         </div>
                     </div>
                 </div>
@@ -98,16 +57,16 @@
                                     <thead>
                                         <tr>
                                             <th>Divisi PKL</th>
-                                            <th>Jumlah Mahasiswa</th>
+                                            <th>Jumlah Siswa</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        
+                                        @foreach($dataDivisiPKL as $divisi)
                                         <tr>
-                                            <td></td>
-                                            <td></td>
+                                            <td>{{ $divisi->divisi_pkl }}</td>
+                                            <td>{{ $divisi->total }}</td>
                                         </tr>
-                                        
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>

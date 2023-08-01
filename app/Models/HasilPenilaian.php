@@ -22,4 +22,15 @@ class HasilPenilaian extends Model
     protected $casts = [
         'data_penilaian' => 'json',
     ];
+
+    public function siswa()
+    {
+        return $this->belongsTo(Siswa::class, 'id_siswa');
+    }
+
+    // Definisikan relasi HasilPenilaian dengan User (penilai)
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
 }

@@ -25,4 +25,9 @@ class Siswa extends Model
     {
         return $this->belongsTo(Sekolah::class, 'id_sekolah', 'id_sekolah');
     }
+    
+    public function hasilPenilaian()
+    {
+        return $this->hasOne(HasilPenilaian::class, 'id_siswa');
+    }
 }

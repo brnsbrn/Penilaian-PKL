@@ -20,13 +20,18 @@
         <div class="row g-3 align-items-center mt-1">
             <div class="col-auto">
                 <form action='' method="GET">
-                    <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}" style="margin-top: 5px">
+                    <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}" style="margin-top: 5px" placeholder='Cari nama siswa...'>
                 </form>
             </div>
         </div>
         <div class='row'>
             @if($message = Session::get('success'))
             <div class="alert alert-success mt-3 mb-2" role="alert">
+                {{ $message }}
+            </div>
+            @endif
+            @if($message = Session::get('error'))
+            <div class="alert alert-danger mt-3 mb-2" role="alert">
                 {{ $message }}
             </div>
             @endif
@@ -38,16 +43,17 @@
                         <th scope="col">Divisi PKL</th>
                         <th scope="col">Asal Sekolah</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Status Penilaian</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                    $no = 1;
+                     $nomorUrutAwal = ($data->currentPage() - 1) * $data->perPage() + 1;
                     @endphp
 
                     @foreach ($data as $siswa)
                     <tr>
-                        <th scope="row">{{ $no++ }}</th>
+                        <th>{{ $nomorUrutAwal + $loop->index }}</th>
                         <td>
                             <a href="#" data-toggle="modal" data-target="#detailModal{{ $siswa->id_siswa }}">
                                 {{ $siswa->nama_siswa }}
@@ -62,6 +68,16 @@
                             $statusClass = ($status == 'Sedang Berlangsung') ? 'bg-warning' : 'bg-success';
                             @endphp
                             <span class="badge {{ $statusClass }}">{{ $status }}</span>
+                        </td>
+                        <td>
+                            @php
+                            $isAssessed = \App\Models\HasilPenilaian::where('id_siswa', $siswa->id_siswa)
+                                            ->where('id_user', \Illuminate\Support\Facades\Auth::id())
+                                            ->exists();
+                            $assessmentStatus = $isAssessed ? 'Sudah Dinilai' : 'Belum Dinilai';
+                            $assessmentStatusClass = $isAssessed ? 'bg-success' : 'bg-danger';
+                            @endphp
+                            <span class="badge {{ $assessmentStatusClass }}">{{ $assessmentStatus }}</span>
                         </td>
                     </tr>
                     <!-- Modal -->
@@ -82,7 +98,7 @@
                                 <div class="modal-body">
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <p><strong>Nama Mahasiswa:</strong> {{ $siswa->nama_siswa }}
+                                            <p><strong>Nama Siswa:</strong> {{ $siswa->nama_siswa }}
                                             </p>
                                             <p><strong>Asal Instansi:</strong> {{ $siswa->sekolah->nama_sekolah }}</p>
                                             <p><strong>Divisi PKL:</strong> {{ $siswa->divisi_pkl }}</p>
@@ -94,18 +110,20 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <a href="/penilai/formnilai/ {{ $siswa->id_siswa }}" type="button"
-                                        class="btn btn-success btn-sm">Nilai</a>
-                                    <a href="/penilai/hasilpenilaian/{{$siswa->id_siswa}}" type="button"
-                                        class="btn btn-secondary btn-sm">Lihat Nilai</a>
+                                    @if (!$siswa->hasilPenilaian)
+                                        <a href="/penilai/formnilai/{{ $siswa->id_siswa }}" type="button" class="btn btn-success btn-sm">Nilai</a>
+                                    @endif
+                                    <a href="/penilai/hasilpenilaian/{{ $siswa->id_siswa }}" type="button" class="btn btn-secondary btn-sm">Lihat Nilai</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     @endforeach
-
                 </tbody>
             </table>
+            <div class="d-flex justify-content-center mt-4">
+                {{ $data->links('pagination::bootstrap-4') }}
+            </div>
         </div>
     </div>
 </div>

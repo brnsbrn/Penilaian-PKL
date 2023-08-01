@@ -19,8 +19,8 @@
         <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#modalTambahUser">Tambah +</a>
         <div class="row g-3 align-items-center mt-1">
             <div class="col-auto">
-                <form action='' method="GET">
-                    <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}" style="margin-top: 5px">
+                <form action="{{ route('admin.datauser') }}" method="GET">
+                    <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}" style="margin-top: 5px" placeholder="Search by Username">
                 </form>
             </div>
         </div>
@@ -37,7 +37,7 @@
             @endif
             <table class="table" style="margin-top: 10px">
                 <thead>
-                    <tr>
+                <tr
                         <th scope="col">No</th>
                         <th scope="col">Nama</th>
                         <th scope="col">Username</th>
@@ -52,7 +52,7 @@
 
                     @foreach ($users as $user)
                     <tr>
-                        <th scope="row">{{ $no++ }}</th>
+                        <th scope="row">{{ $users->perPage() * ($users->currentPage() - 1) + $loop->iteration }}</th>
                         <td>{{ $user->nama }}</td>
                         <td>{{ $user->username }}</td>
                         <td>{{ $user->peran }}</td>
@@ -65,6 +65,10 @@
 
                 </tbody>
             </table>
+            <!-- Pagination Links -->
+            <div class="d-flex justify-content-center">
+                {{ $users->links() }}
+            </div>
         </div>
     </div>
 </div>
@@ -93,7 +97,6 @@
                     <div class="form-group">
                         <label for="peran">Peran:</label>
                         <select class="form-control" id="peran" name="peran" required>
-
                             <option value="sekolah">Sekolah</option>
                             <option value="penilai">Penilai</option>
                         </select>

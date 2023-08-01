@@ -12,72 +12,37 @@
                     <form action="{{ route('sekolah.simpanForm') }}" method="POST">
                         @csrf
 
-                        <!-- Tampilkan 3 kriteria awal -->
+                        <!-- Tampilkan 2 kriteria awal -->
+                        @for($i = 1; $i <= 2; $i++)
                         <div class="form-group">
-                            <label for="kriteria1">Kriteria 1:</label>
-                            <input type="text" class="form-control" id="kriteria1" name="kriteria1" required>
+                            <label for="kriteria{{ $i }}">Nama Kriteria:</label>
+                            <input type="text" class="form-control" name="kriteria[{{ $i }}][nama]" required>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipe_kriteria1" value="angka" required>
+                                <input class="form-check-input" type="radio" name="kriteria[{{ $i }}][tipe]" value="angka" required>
                                 <label class="form-check-label">Angka</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipe_kriteria1" value="huruf">
+                                <input class="form-check-input" type="radio" name="kriteria[{{ $i }}][tipe]" value="huruf">
                                 <label class="form-check-label">Huruf</label>
                             </div>
                             <!-- Tampilkan form min dan max hanya jika kriteria berupa angka -->
                             <div class="form-group">
-                                <label for="min_kriteria1">Min:</label>
-                                <input type="number" class="form-control" id="min_kriteria1" name="min_kriteria1">
+                                <label for="min_kriteria{{ $i }}">Min:</label>
+                                <input type="number" class="form-control" name="kriteria[{{ $i }}][min]">
                             </div>
                             <div class="form-group">
-                                <label for="max_kriteria1">Max:</label>
-                                <input type="number" class="form-control" id="max_kriteria1" name="max_kriteria1">
+                                <label for="max_kriteria{{ $i }}">Max:</label>
+                                <input type="number" class="form-control" name="kriteria[{{ $i }}][max]">
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="kriteria2">Kriteria 2:</label>
-                            <input type="text" class="form-control" id="kriteria2" name="kriteria2" required>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipe_kriteria2" value="angka" required>
-                                <label class="form-check-label">Angka</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipe_kriteria2" value="huruf">
-                                <label class="form-check-label">Huruf</label>
-                            </div>
-                            <!-- Tampilkan form min dan max hanya jika kriteria berupa angka -->
-                            <div class="form-group">
-                                <label for="min_kriteria2">Min:</label>
-                                <input type="number" class="form-control" id="min_kriteria2" name="min_kriteria2">
-                            </div>
-                            <div class="form-group">
-                                <label for="max_kriteria2">Max:</label>
-                                <input type="number" class="form-control" id="max_kriteria2" name="max_kriteria2">
-                            </div>
+                            <!-- Tombol untuk menghapus kriteria -->
+                            @if($i > 0)
+                            <button type="button" class="btn btn-danger hapusKriteria">Hapus</button>
+                            @endif
                         </div>
+                        @endfor
 
-                        <div class="form-group">
-                            <label for="kriteria3">Kriteria 3:</label>
-                            <input type="text" class="form-control" id="kriteria3" name="kriteria3" required>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipe_kriteria3" value="angka" required>
-                                <label class="form-check-label">Angka</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipe_kriteria3" value="huruf">
-                                <label class="form-check-label">Huruf</label>
-                            </div>
-                            <!-- Tampilkan form min dan max hanya jika kriteria berupa angka -->
-                            <div class="form-group">
-                                <label for="min_kriteria3">Min:</label>
-                                <input type="number" class="form-control" id="min_kriteria3" name="min_kriteria3">
-                            </div>
-                            <div class="form-group">
-                                <label for="max_kriteria3">Max:</label>
-                                <input type="number" class="form-control" id="max_kriteria3" name="max_kriteria3">
-                            </div>
-                        </div>
+                        <!-- Kolom selanjutnya akan ditambahkan melalui JavaScript -->
 
                         <!-- Tombol untuk menambah kriteria -->
                         <button type="button" class="btn btn-primary" id="tambahKriteria">Tambah +</button>
@@ -94,33 +59,41 @@
 @push('scripts')
 <script>
     // Script untuk menambah kriteria dengan tombol "+"
-    var counter = 4; // Kriteria selanjutnya akan dimulai dari angka 4
+    var counter = 3; // Kriteria selanjutnya akan dimulai dari angka 3
     $('#tambahKriteria').click(function() {
         var html = `
             <div class="form-group">
-                <label for="kriteria${counter}">Kriteria ${counter}:</label>
-                <input type="text" class="form-control" id="kriteria${counter}" name="kriteria${counter}" required>
+                <label for="kriteria${counter}">Nama Kriteria:</label>
+                <input type="text" class="form-control" name="kriteria[${counter}][nama]" required>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="tipe_kriteria${counter}" value="angka" required>
+                    <input class="form-check-input" type="radio" name="kriteria[${counter}][tipe]" value="angka" required>
                     <label class="form-check-label">Angka</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="tipe_kriteria${counter}" value="huruf">
+                    <input class="form-check-input" type="radio" name="kriteria[${counter}][tipe]" value="huruf">
                     <label class="form-check-label">Huruf</label>
                 </div>
                 <!-- Tampilkan form min dan max hanya jika kriteria berupa angka -->
                 <div class="form-group">
                     <label for="min_kriteria${counter}">Min:</label>
-                    <input type="number" class="form-control" id="min_kriteria${counter}" name="min_kriteria${counter}">
+                    <input type="number" class="form-control" name="kriteria[${counter}][min]">
                 </div>
                 <div class="form-group">
                     <label for="max_kriteria${counter}">Max:</label>
-                    <input type="number" class="form-control" id="max_kriteria${counter}" name="max_kriteria${counter}">
+                    <input type="number" class="form-control" name="kriteria[${counter}][max]">
                 </div>
+
+                <!-- Tombol untuk menghapus kriteria -->
+                <button type="button" class="btn btn-danger hapusKriteria">Hapus</button>
             </div>
         `;
         $('#tambahKriteria').before(html);
         counter++;
+    });
+
+    // Script untuk menghapus kriteria dengan tombol "Hapus"
+    $('form').on('click', '.hapusKriteria', function() {
+        $(this).closest('.form-group').remove();
     });
 </script>
 @endpush

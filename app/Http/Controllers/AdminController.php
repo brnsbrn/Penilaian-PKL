@@ -7,9 +7,11 @@ use App\Models\User;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 
 
@@ -18,24 +20,24 @@ class AdminController extends Controller
 
     
 
-    public function halbaru()
+    public function index()
     {
         // Menghitung total data mahasiswa
         $totaldata = Siswa::count();
 
         // Menghitung jumlah mahasiswa yang baru memulai PKL dalam 7 hari terakhir
-        $tanggalTujuhHariSebelumnya = Carbon::now()->subDays(7);
-        $jumlahMahasiswaBaru = Siswa::where('tanggal_mulai', '>=', $tanggalTujuhHariSebelumnya)->count();
+        $today = date('Y-m-d');
+        $jumlahMasihPKL = Siswa::where('tanggal_berakhir', '>', $today)->count();
 
         // Menghitung jumlah mahasiswa yang telah lama memulai PKL sebelum 7 hari terakhir
-        $jumlahMahasiswaLama = Siswa::where('tanggal_mulai', '<', $tanggalTujuhHariSebelumnya)->count();
+        $jumlahSelesaiPKL = Siswa::where('tanggal_berakhir', '<=', $today)->count();
 
         // Menghitung jumlah asal instansi yang berbeda
-        $totalAsalInstansi = DB::table('siswa')->distinct('asal_instansi')->count('asal_instansi');
+        $totalsekolah = Sekolah::count();
 
         // Menghitung jumlah mahasiswa berdasarkan asal instansi
-        $dataAsalInstansi = Siswa::select('asal_instansi', DB::raw('COUNT(*) as total'))
-            ->groupBy('asal_instansi')
+        $dataAsalInstansi = Siswa::select('id_sekolah', DB::raw('COUNT(*) as total'))
+            ->groupBy('id_sekolah')
             ->paginate(5, ['*'], 'page_instansi') // Add pagination with 5 records per page, 'page_instansi' is the query parameter for the page number.
             ->appends(request()->query()); // Append any existing query parameters to the pagination links.
 
@@ -45,13 +47,36 @@ class AdminController extends Controller
             ->paginate(5, ['*'], 'page_divisi') // Add pagination with 5 records per page, 'page_divisi' is the query parameter for the page number.
             ->appends(request()->query());
 
-        return view('admin.dashboardlte', compact('totaldata', 'jumlahMahasiswaBaru', 'jumlahMahasiswaLama', 'totalAsalInstansi', 'dataAsalInstansi', 'dataDivisiPKL'));
+        if (request()->has('page_total')) {
+            Paginator::currentPageResolver(function () {
+                return request()->query('page_total');
+            });
+        }
+
+        return view('admin.dashboardlte', compact('totaldata', 'jumlahMasihPKL', 'jumlahSelesaiPKL', 'totalsekolah', 'dataAsalInstansi', 'dataDivisiPKL'));
     }
 
-    public function datauser() 
+    // public function index()
+    // {
+    //     return view('admin.dashboardlte');
+    // }
+
+    public function datauser(Request $request)
     {
-        $users = User::all();
-        return view('admin.datauser', compact('users'));
+        $users = User::query();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = Str::lower($request->search);
+            $users->whereRaw('LOWER(username) LIKE ?', ["%{$searchTerm}%"]);
+        }
+
+        // Tambahkan kode pagination di sini
+        $users = $users->paginate(5);
+
+        // Panggil metode simplePaginate() untuk menghilangkan query string selain halaman
+        Paginator::useBootstrap();
+
+        return view('admin.datauser', compact('users', 'request'));
     }
 
     public function simpanUser(Request $request)
@@ -61,6 +86,12 @@ class AdminController extends Controller
             'username' => 'required|string|max:255|unique:users',
             'peran' => 'required|in:admin,sekolah,penilai',
         ]);
+
+        // Cek apakah username sudah terdaftar di tabel 'users'
+        $existingUser = User::where('username', $request->input('username'))->first();
+        if ($existingUser) {
+            return redirect()->route('admin.datauser')->with('error', 'Username sudah terdaftar. Silakan pilih username lain.');
+        }
 
         $user = new User();
         $user->nama = $request->input('nama');
@@ -79,10 +110,10 @@ class AdminController extends Controller
             }
         }
 
-        $user->password = Hash::make('password');
+        $user->password = Hash::make('bpdkaltim123');
         $user->save();
 
-        return redirect()->route('admin.datauser')->with('success', 'Data user berhasil ditambahkan.');;
+        return redirect()->route('admin.datauser')->with('success', 'Data user berhasil ditambahkan.');
     }
 
     public function updateUser(Request $request, $id)
@@ -121,23 +152,40 @@ class AdminController extends Controller
         return redirect()->route('admin.datauser')->with('error', 'Data user tidak ditemukan.');
     }
 
-    public function dataSekolah()
+    public function dataSekolah(Request $request)
     {
-        $sekolahan = Sekolah::all();
-        return view('admin.datasekolah', compact('sekolahan'));
+        $query = Sekolah::query();
+    
+        // Proses pencarian berdasarkan nama sekolah jika ada
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where('nama_sekolah', 'LIKE', '%' . $searchTerm . '%');
+        }
+    
+        // Lakukan pagination dengan 5 data per halaman
+        $sekolahan = $query->paginate(5);
+        
+        // Panggil metode simplePaginate() untuk menghilangkan query string selain halaman
+        Paginator::useBootstrap();
+    
+        return view('admin.datasekolah', compact('sekolahan', 'request'));
     }
 
     public function simpanSekolah(Request $request)
     {
         $request->validate([
-            'nama' => 'required',
+            'nama' => 'required|unique:sekolah,nama_sekolah', // Menambahkan validasi unique untuk kolom 'nama_sekolah' di tabel 'sekolah'
         ]);
 
-        Sekolah::create([
+        $sekolah = Sekolah::create([
             'nama_sekolah' => $request->nama,
         ]);
 
-        return redirect()->route('admin.datasekolah')->with('success', 'Data sekolah berhasil ditambahkan.');
+        if ($sekolah) {
+            return redirect()->route('admin.datasekolah')->with('success', 'Data sekolah berhasil ditambahkan.');
+        } else {
+            return redirect()->route('admin.datasekolah')->with('error', 'Sekolah Sudah Didaftarkan Sebelumnya.');
+        }
     }
 
     public function updateSekolah(Request $request, $id)

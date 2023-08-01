@@ -16,7 +16,7 @@ Route::post('/logout-on-exit', [AuthController::class, 'logout'])->name('logout-
 
 // Route Admin
 Route::middleware(['auth', 'checkrole:admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'halBaru']);
+    Route::get('/admin/dashboard', [AdminController::class, 'index']);
     Route::get('/admin/datauser', [AdminController::class, 'datauser'])->name('admin.datauser');
     Route::post('/admin/simpanuser', [AdminController::class, 'simpanUser'])->name('admin.simpanuser');
     Route::post('/admin/updateuser/{id}', [AdminController::class, 'updateUser'])->name('admin.updateuser');
@@ -43,8 +43,7 @@ Route::middleware(['auth', 'checkrole:sekolah'])->group(function () {
 
     Route::get('/sekolah/editform/{id}', [SekolahController::class, 'editFormPenilaian'])->name('sekolah.editform');
     Route::put('/sekolah/updateform/{id}', [SekolahController::class, 'updateFormPenilaian'])->name('sekolah.updateform');
-
-
+    Route::get('/sekolah/hasil-penilaian/{idSiswa}', [SekolahController::class, 'hasilPenilaianSiswa'])->name('sekolah.hasil_penilaian');
 
     Route::get('/sekolah/tampilform', [SekolahController::class, 'tampilkan_form'])->name('sekolah.tampilform');
 });

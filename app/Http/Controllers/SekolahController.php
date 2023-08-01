@@ -3,28 +3,128 @@
 namespace App\Http\Controllers;
 
 use App\Models\FormPenilaian;
+use App\Models\HasilPenilaian;
 use App\Models\Siswa;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Pagination\Paginator;
+use App\Models\Sekolah;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 
 class SekolahController extends Controller
 {
     public function index() 
     {
-        return view('sekolah.dashboard');
+        {
+            // Mendapatkan id_sekolah dari session
+            $idsekolah = session('id_sekolah');
+        
+            // Menghitung total data mahasiswa berdasarkan id_sekolah
+            $totalsiswa = Siswa::where('id_sekolah', $idsekolah)->count();
+        
+            // Menghitung jumlah mahasiswa yang baru memulai PKL dalam 7 hari terakhir berdasarkan id_sekolah
+            $today = date('Y-m-d');
+            $jumlahMasihPKL = Siswa::where('id_sekolah', $idsekolah)->where('tanggal_berakhir', '>', $today)->count();
+        
+            // Menghitung jumlah mahasiswa yang telah lama memulai PKL sebelum 7 hari terakhir berdasarkan id_sekolah
+            $jumlahSelesaiPKL = Siswa::where('id_sekolah', $idsekolah)->where('tanggal_berakhir', '<=', $today)->count();
+
+            // Menghitung jumlah mahasiswa berdasarkan divisi PKL
+            $dataDivisiPKL = Siswa::where('id_sekolah', $idsekolah)
+            ->selectRaw('divisi_pkl, COUNT(*) as total')
+            ->groupBy('divisi_pkl')
+            ->paginate(5, ['*'], 'page_divisi')
+            ->appends(request()->query());
+        
+            return view('sekolah.dashboard', compact('totalsiswa', 'jumlahMasihPKL', 'jumlahSelesaiPKL','dataDivisiPKL'));
+        }
     }
 
-    public function datasiswa()
+    public function datasiswa(Request $request)
     {
         // Ambil id_sekolah dari session user yang sedang login
         $idSekolah = Auth::user()->id_sekolah;
 
-        // Ambil data siswa yang memiliki id_sekolah yang sama dengan id_sekolah user yang login
-        $siswa = Siswa::where('id_sekolah', $idSekolah)->get();
+        // Mengambil data siswa berdasarkan id_sekolah
+        $siswaQuery = Siswa::where('id_sekolah', $idSekolah);
+
+        // Pencarian berdasarkan nama siswa jika ada input search
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $siswaQuery->where(function (Builder $query) use ($search) {
+                $query->where('nama_siswa', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Mengurutkan data siswa sesuai abjad berdasarkan nama siswa
+        $siswaQuery->orderBy('nama_siswa');
+
+        // Menampilkan data siswa dengan pagination
+        $siswa = $siswaQuery->paginate(5)->appends(request()->query());
 
         return view('sekolah.datasiswa', compact('siswa'));
     }
+
+    public function hasilPenilaianSiswa($idSiswa)
+    {
+        // Ambil data siswa berdasarkan ID
+        $siswa = Siswa::findOrFail($idSiswa);
+    
+        // Cari hasil penilaian berdasarkan ID siswa
+        $hasilPenilaian = HasilPenilaian::where('id_siswa', $idSiswa)->get();
+    
+        // Jika hasil penilaian tidak ditemukan, redirect atau tampilkan pesan error
+        if ($hasilPenilaian->isEmpty()) {
+            return redirect()->route('sekolah.datasiswa')->with('error', 'Hasil penilaian untuk siswa ini tidak ditemukan');
+        }
+    
+        // Dekode data penilaian dari hasil penilaian
+        $dataPenilaian = [];
+        foreach ($hasilPenilaian as $hasil) {
+            $dataPenilaian[] = json_decode($hasil->data_penilaian, true);
+        }
+    
+        // Dapatkan form penilaian berdasarkan ID form pada hasil penilaian
+        $formPenilaian = FormPenilaian::findOrFail($hasilPenilaian[0]->id_form);
+    
+        // Dekode data kriteria penilaian dari form penilaian
+        $kriteriaPenilaian = json_decode($formPenilaian->data_form, true);
+    
+        // Hitung nilai rata-rata tiap kriteria
+        $nilaiRataRata = [];
+        foreach ($kriteriaPenilaian as $kriteria) {
+            $totalNilai = 0;
+            $jumlahPenilai = 0;
+            foreach ($dataPenilaian as $data) {
+                if (isset($data[$kriteria['kriteria']])) {
+                    $totalNilai += $data[$kriteria['kriteria']];
+                    $jumlahPenilai++;
+                }
+            }
+            $rataRata = $jumlahPenilai > 0 ? $totalNilai / $jumlahPenilai : 0;
+            $nilaiRataRata[$kriteria['kriteria']] = $rataRata;
+        }
+    
+        // Hitung nilai total
+        $totalRataRata = array_sum($nilaiRataRata);
+        $jumlahKriteria = count($kriteriaPenilaian);
+        $nilaiTotal = $jumlahKriteria > 0 ? $totalRataRata / $jumlahKriteria : 0;
+    
+        return view('sekolah.hasilpenilaian', [
+            'siswa' => $siswa,
+            'dataPenilaian' => $dataPenilaian,
+            'kriteriaPenilaian' => $kriteriaPenilaian,
+            'nilaiRataRata' => $nilaiRataRata,
+            'nilaiTotal' => $nilaiTotal,
+            'hasilPenilaian' => $hasilPenilaian, // Kirim data hasil penilaian ke view
+        ]);
+    }
+
 
     public function simpanSiswa(Request $request)
     {
@@ -143,7 +243,7 @@ class SekolahController extends Controller
         $formPenilaian->data_form = json_encode($dataForm);
         $formPenilaian->save();
 
-        return redirect()->route('sekolah.dataform')->with('success', 'Data kriteria penilaian berhasil disimpan');
+        return redirect()->route('sekolah.showdataform')->with('success', 'Data kriteria penilaian berhasil disimpan');
     }
 
     public function tampilkan_form()

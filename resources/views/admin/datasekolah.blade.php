@@ -20,13 +20,18 @@
         <div class="row g-3 align-items-center mt-1">
             <div class="col-auto">
                 <form action='' method="GET">
-                    <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}" style="margin-top: 5px">
+                    <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}" style="margin-top: 5px" placeholder="Cari nama sekolah...">
                 </form>
             </div>
         </div>
         <div class='row'>
             @if($message = Session::get('success'))
             <div class="alert alert-success mt-3 mb-2" role="alert">
+                {{ $message }}
+            </div>
+            @endif
+            @if($message = Session::get('error'))
+            <div class="alert alert-danger mt-3 mb-2" role="alert">
                 {{ $message }}
             </div>
             @endif
@@ -39,7 +44,7 @@
                 </thead>
                 <tbody>
                     @php
-                    $no = 1;
+                    $no = ($sekolahan->currentPage() - 1) * $sekolahan->perPage() + 1;
                     @endphp
 
                     @foreach ($sekolahan as $sekolah)
@@ -55,6 +60,9 @@
 
                 </tbody>
             </table>
+            <div class="d-flex justify-content-center">
+                {{ $sekolahan->links() }}
+            </div>
         </div>
     </div>
 </div>

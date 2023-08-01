@@ -20,7 +20,7 @@
         <div class="row g-3 align-items-center mt-1">
             <div class="col-auto">
                 <form action='' method="GET">
-                    <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}" style="margin-top: 5px">
+                    <input type="search" id="search" class="form-control" name="search" aria-labelledby="passwordHelpInline" value="{{ $request->search ?? '' }}" style="margin-top: 5px" placeholder="Cari nama siswa...">
                 </form>
             </div>
         </div>
@@ -41,23 +41,21 @@
                         <th scope="col">No</th>
                         <th scope="col">Nama Siswa</th>
                         <th scope="col">Divisi PKL</th>
-                        <th scope="col">Tanggal Mulai PKL</th>
                         <th scope="col">Tanggal Berakhir PKL</th>
                         <th scope="col">Status</th>
                         <th scope="col">Action</th>
                     </tr>
-                </thead>
+                </thead>                
                 <tbody>
                     @php
-                    $no = 1;
+                     $nomorUrutAwal = ($siswa->currentPage() - 1) * $siswa->perPage() + 1;
                     @endphp
-
+            
                     @foreach ($siswa as $dataSiswa)
                     <tr>
-                        <th scope="row">{{ $no++ }}</th>
+                        <th>{{ $nomorUrutAwal + $loop->index }}</th>
                         <td>{{ $dataSiswa->nama_siswa }}</td>
                         <td>{{ $dataSiswa->divisi_pkl }}</td>
-                        <td>{{ $dataSiswa->tanggal_mulai }}</td>
                         <td>{{ $dataSiswa->tanggal_berakhir }}</td>
                         <td>
                             @php
@@ -68,14 +66,20 @@
                             <span class="badge {{ $statusClass }}">{{ $status }}</span>
                         </td>
                         <td>
-                            <!-- Tombol Edit dan Hapus Siswa -->
+                            <!-- Tombol Edit, Hapus, dan Lihat Nilai Siswa -->
                             <a href="#" type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalEditSiswa{{ $dataSiswa->id_siswa }}">Edit</a>
                             <a href="#" data-toggle="modal" data-target="#modalHapusSiswa{{ $dataSiswa->id_siswa }}" type="button" class="btn btn-danger delete">Hapus</a>
+                            <a href="{{ route('sekolah.hasil_penilaian', ['idSiswa' => $dataSiswa->id_siswa]) }}" class="btn btn-primary">Lihat Nilai</a>
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
+            
+            <!-- Menampilkan tautan paginasi -->
+            <div class="d-flex justify-content-center mt-4">
+                {{ $siswa->links('pagination::bootstrap-4') }}
+            </div>
         </div>
     </div>
 </div>
@@ -188,6 +192,5 @@
 
 @push('scripts')
 <script>
-    // ... script lainnya ...
 </script>
 @endpush

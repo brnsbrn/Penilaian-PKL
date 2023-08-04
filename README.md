@@ -1,14 +1,12 @@
+# Website Penilaian Siswa PKL KCU Bankaltimtara Samarinda
 
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Website ini merupakan sistem manajemen data mengenai sistem penilaian terhadap seluruh siswa yang melakukan Praktek Kerja Lapangan (PKL) di Kantor Cabang
+Utama Bankaltimtara Samarinda. Website ini dapat digunakan oleh Karyawan Bankaltimtara Pusat selaku penilai terhadap siswa PKL yang bersangkutan serta instansi asal siswa PKL guna menginput data siswa mereka serta melihat hasil akhir penilaian terhadap siswa mereka.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![image](https://github.com/brnsbrn/Penilaian-PKL/assets/112292625/1f411f42-d102-4f04-8d18-97840e6283ad)
 
-## About Laravel
+![image](https://github.com/brnsbrn/Penilaian-PKL/assets/112292625/2cf5521e-9cb6-4c83-9cd1-8aae79c5c2a1)
+
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
@@ -68,4 +66,33 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 # Penilaian-PKL
 Sistem administrasi untuk menilai kinerja siswa PKL yang ada di Bankaltimtara
+
+
+## Tutorial Menjalankan Website
+Pastikan anda telah menginstall Composer dan Laravel di device anda.
+1. Lakukan clone terhadap repository ini seperti dibawah ini.
+```bash
+git clone https://github.com/brnsbrn/Penilaian-PKL.git
+```
+2. Akses Folder tempat anda menyimpan hasil clone file project ini.
+```bash
+cd nama_folder
+```
+3. Kemudian install seluruh dependency menggunakan composer.
+```bash
+composer install
+```
+4. Masukkan generate key untuk mendapatkan access key.
+```bash
+php artisan key:generate
+```
+5. Ubah file .envexample menjadi .env dan hubungkan konfigurasi database anda di sana.
+6. Lakukan migrasi seluruh tabel menuju database anda
+```bash
+php artisan migrate
+```
+7. Lakukan serve untuk menjalankan project di server localhost anda.
+```bash
+php artisan serve
+```
 

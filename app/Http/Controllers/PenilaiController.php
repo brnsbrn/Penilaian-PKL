@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
 
 class PenilaiController extends Controller
 {
@@ -122,11 +125,7 @@ class PenilaiController extends Controller
             // Simpan nilai kriteria ke dalam array $data_penilaian
             $data_penilaian[$kriteria->kriteria] = $kriteria_value;
         }
-
-        // Cek apakah data penilaian sudah sesuai
-        // Ini bisa digunakan untuk debugging jika nilai tidak tersimpan dengan benar
-        // dd($data_penilaian);
-
+        
         // Simpan data penilaian ke dalam database
         $hasil_penilaian = new HasilPenilaian();
         $hasil_penilaian->id_user = Auth::id();
@@ -247,6 +246,32 @@ class PenilaiController extends Controller
 
         return redirect()->route('penilai.hasilpenilaian', ['id' => $hasilPenilaian->id_siswa])
             ->with('success', 'Hasil penilaian berhasil diperbarui.');
+    }
+
+    public function cetakPDF($idHasilPenilaian)
+    {
+        $hasilPenilaian = HasilPenilaian::findOrFail($idHasilPenilaian);
+
+        // Buat objek Dompdf dan set defaultFont
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+        $dompdf = new Dompdf($pdfOptions);
+
+        // Load view dengan menggunakan $dompdf->loadHtml() dan sertakan data yang diperlukan
+        $pdfView = view('penilai.hasilnilai_pdf', [
+            'siswa' => $hasilPenilaian->siswa,
+            'dataPenilaian' => json_decode($hasilPenilaian->data_penilaian, true),
+            'kriteriaPenilaian' => json_decode($hasilPenilaian->formPenilaian->data_form, true),
+            'hasilPenilaian' => $hasilPenilaian,
+        ]);
+
+        $dompdf->loadHtml($pdfView);
+
+        // Render PDF
+        $dompdf->render();
+
+        // Menggunakan $dompdf->stream() untuk menampilkan PDF atau $dompdf->output() untuk menyimpannya dalam variabel
+        return $dompdf->stream('hasil_penilaian_'.$hasilPenilaian->siswa->nama_siswa.'.pdf');
     }
 }
 

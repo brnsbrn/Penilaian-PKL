@@ -16,23 +16,23 @@
                         @for($i = 1; $i <= 2; $i++)
                         <div class="form-group">
                             <label for="kriteria{{ $i }}">Nama Kriteria:</label>
-                            <input type="text" class="form-control" name="kriteria[{{ $i }}][nama]" required>
+                            <input type="text" class="form-control" name="kriteria{{ $i }}" required>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="kriteria[{{ $i }}][tipe]" value="angka" required>
+                                <input class="form-check-input" type="radio" name="tipe_kriteria{{ $i }}" value="angka" required>
                                 <label class="form-check-label">Angka</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="kriteria[{{ $i }}][tipe]" value="huruf">
+                                <input class="form-check-input" type="radio" name="tipe_kriteria{{ $i }}" value="huruf">
                                 <label class="form-check-label">Huruf</label>
                             </div>
                             <!-- Tampilkan form min dan max hanya jika kriteria berupa angka -->
                             <div class="form-group">
                                 <label for="min_kriteria{{ $i }}">Min:</label>
-                                <input type="number" class="form-control" name="kriteria[{{ $i }}][min]">
+                                <input type="number" class="form-control" name="min_kriteria{{ $i }}">
                             </div>
                             <div class="form-group">
                                 <label for="max_kriteria{{ $i }}">Max:</label>
-                                <input type="number" class="form-control" name="kriteria[{{ $i }}][max]">
+                                <input type="number" class="form-control" name="max_kriteria{{ $i }}">
                             </div>
 
                             <!-- Tombol untuk menghapus kriteria -->
@@ -64,23 +64,23 @@
         var html = `
             <div class="form-group">
                 <label for="kriteria${counter}">Nama Kriteria:</label>
-                <input type="text" class="form-control" name="kriteria[${counter}][nama]" required>
+                <input type="text" class="form-control" name="kriteria${counter}" required>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="kriteria[${counter}][tipe]" value="angka" required>
+                    <input class="form-check-input" type="radio" name="tipe_kriteria${counter}" value="angka" required>
                     <label class="form-check-label">Angka</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="kriteria[${counter}][tipe]" value="huruf">
+                    <input class="form-check-input" type="radio" name="tipe_kriteria${counter}" value="huruf">
                     <label class="form-check-label">Huruf</label>
                 </div>
                 <!-- Tampilkan form min dan max hanya jika kriteria berupa angka -->
                 <div class="form-group">
                     <label for="min_kriteria${counter}">Min:</label>
-                    <input type="number" class="form-control" name="kriteria[${counter}][min]">
+                    <input type="number" class="form-control" name="min_kriteria${counter}">
                 </div>
                 <div class="form-group">
                     <label for="max_kriteria${counter}">Max:</label>
-                    <input type="number" class="form-control" name="kriteria[${counter}][max]">
+                    <input type="number" class="form-control" name="max_kriteria${counter}">
                 </div>
 
                 <!-- Tombol untuk menghapus kriteria -->

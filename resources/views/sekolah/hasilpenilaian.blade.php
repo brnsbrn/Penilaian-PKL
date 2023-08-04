@@ -73,7 +73,19 @@
                                 <div class="col-md-12">
                                     <h4>Nilai Total</h4>
                                     <p>{{ $nilaiTotal }}</p>
+                                    @if ($statusNilai === 'Sangat Baik')
+                                        <p style="color: green;">{{ $statusNilai }}</p>
+                                    @elseif ($statusNilai === 'Baik')
+                                        <p style="color: blue;">{{ $statusNilai }}</p>
+                                    @elseif ($statusNilai === 'Cukup')
+                                        <p style="color: yellow;">{{ $statusNilai }}</p>
+                                    @elseif ($statusNilai === 'Buruk')
+                                        <p style="color: orange;">{{ $statusNilai }}</p>
+                                    @else
+                                        <p style="color: red;">{{ $statusNilai }}</p>
+                                    @endif
                                 </div>
+                                <a href="{{ route('sekolah.cetakpdf', ['idSiswa' => $siswa->id_siswa]) }}" class="btn btn-primary" style="background-color: crimson" target="_blank">Cetak PDF</a>
                             </div>
                         </div>
                     </div>

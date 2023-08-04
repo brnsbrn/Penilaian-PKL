@@ -46,6 +46,8 @@ Route::middleware(['auth', 'checkrole:sekolah'])->group(function () {
     Route::get('/sekolah/hasil-penilaian/{idSiswa}', [SekolahController::class, 'hasilPenilaianSiswa'])->name('sekolah.hasil_penilaian');
 
     Route::get('/sekolah/tampilform', [SekolahController::class, 'tampilkan_form'])->name('sekolah.tampilform');
+
+    Route::get('/sekolah/cetakpdf/{idSiswa}', [SekolahController::class, 'cetakPDF'])->name('sekolah.cetakpdf');
 });
 
 // Route Penilai
@@ -61,6 +63,7 @@ Route::middleware(['auth', 'checkrole:penilai'])->group(function () {
 
     Route::post('penilai/updatehasilpenilaian/{idHasilPenilaian}', [PenilaiController::class, 'updateHasilPenilaian'])
     ->name('penilai.updatehasilpenilaian');
+    Route::get('/penilai/cetakpdf/{idHasilPenilaian}', [PenilaiController::class, 'cetakPDF'])->name('penilai.cetakpdf');
 
 });
 

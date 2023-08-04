@@ -10,10 +10,13 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use App\Models\Sekolah;
+use PDF;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 
 class SekolahController extends Controller
@@ -114,6 +117,32 @@ class SekolahController extends Controller
         $totalRataRata = array_sum($nilaiRataRata);
         $jumlahKriteria = count($kriteriaPenilaian);
         $nilaiTotal = $jumlahKriteria > 0 ? $totalRataRata / $jumlahKriteria : 0;
+
+        // Dapatkan data form penilaian untuk menghitung nilai maksimal
+        $formPenilaian = FormPenilaian::findOrFail($hasilPenilaian[0]->id_form);
+        $dataFormPenilaian = json_decode($formPenilaian->data_form, true);
+
+        // Hitung nilai maksimal dari salah satu indikator sebagai acuan untuk status penilaian
+        $nilaiMaxAcuan = 0;
+        foreach ($dataFormPenilaian as $kriteria) {
+            if ($kriteria['tipe_kriteria'] === 'angka') {
+                $nilaiMaxAcuan = max($nilaiMaxAcuan, isset($kriteria['max']) ? $kriteria['max'] : 0);
+            }
+        }
+
+        // Tentukan status penilaian berdasarkan nilai total dan nilai maksimal acuan
+        $statusNilai = 'Tidak Diketahui';
+        if ($nilaiTotal >= 0.85 * $nilaiMaxAcuan) {
+            $statusNilai = 'Sangat Baik';
+        } elseif ($nilaiTotal >= 0.7 * $nilaiMaxAcuan) {
+            $statusNilai = 'Baik';
+        } elseif ($nilaiTotal >= 0.5 * $nilaiMaxAcuan) {
+            $statusNilai = 'Cukup';
+        } elseif ($nilaiTotal >= 0.35 * $nilaiMaxAcuan) {
+            $statusNilai = 'Buruk';
+        } else {
+            $statusNilai = 'Sangat Buruk';
+        }
     
         return view('sekolah.hasilpenilaian', [
             'siswa' => $siswa,
@@ -121,7 +150,9 @@ class SekolahController extends Controller
             'kriteriaPenilaian' => $kriteriaPenilaian,
             'nilaiRataRata' => $nilaiRataRata,
             'nilaiTotal' => $nilaiTotal,
-            'hasilPenilaian' => $hasilPenilaian, // Kirim data hasil penilaian ke view
+            'hasilPenilaian' => $hasilPenilaian,
+            'nilaiMaxAcuan' => $nilaiMaxAcuan, // Kirim data nilaiMaxAcuan ke view
+            'statusNilai' => $statusNilai, // Kirim data statusNilai ke view
         ]);
     }
 
@@ -204,28 +235,28 @@ class SekolahController extends Controller
             'kriteria1' => 'required',
             'tipe_kriteria1' => 'required',
         ]);
-
+    
         // Ambil ID sekolah dari user yang sedang login
         $id_sekolah = Auth::user()->id_sekolah;
-
+    
         // Inisialisasi array untuk menyimpan data form penilaian
         $dataForm = [];
-
+    
         $counter = 1;
-
+    
         // Perulangan untuk membaca data kriteria dari request dan menyimpannya dalam array
-        while ($request->has("kriteria$counter")) {
-            $kriteria = $request->input("kriteria$counter");
-            $tipe_kriteria = $request->input("tipe_kriteria$counter");
-
+        while ($request->has("kriteria{$counter}")) {
+            $kriteria = $request->input("kriteria{$counter}");
+            $tipe_kriteria = $request->input("tipe_kriteria{$counter}");
+    
             // Jika kriteria berupa angka, ambil juga nilai min dan max
             $min = null;
             $max = null;
             if ($tipe_kriteria === 'angka') {
-                $min = $request->input("min_kriteria$counter");
-                $max = $request->input("max_kriteria$counter");
+                $min = $request->input("min_kriteria{$counter}");
+                $max = $request->input("max_kriteria{$counter}");
             }
-
+    
             // Tambahkan data kriteria ke dalam array $dataForm
             $dataForm[] = [
                 'kriteria' => $kriteria,
@@ -233,18 +264,33 @@ class SekolahController extends Controller
                 'min' => $min,
                 'max' => $max,
             ];
-
+    
             $counter++;
         }
-
+    
         // Simpan data ke tabel form_penilaian
-        $formPenilaian = new FormPenilaian();
-        $formPenilaian->id_sekolah = $id_sekolah;
-        $formPenilaian->data_form = json_encode($dataForm);
-        $formPenilaian->save();
-
-        return redirect()->route('sekolah.showdataform')->with('success', 'Data kriteria penilaian berhasil disimpan');
-    }
+        // Pastikan tabel 'form_penilaian' sudah ada di database
+        // Jika belum, buat migrasi untuk membuat tabel 'form_penilaian'
+    
+        // Cek apakah data form penilaian sudah ada sebelumnya berdasarkan ID sekolah
+        $existingFormPenilaian = FormPenilaian::where('id_sekolah', $id_sekolah)->first();
+    
+        if ($existingFormPenilaian) {
+            // Jika data form penilaian sudah ada sebelumnya, update data dengan yang baru
+            $existingFormPenilaian->update([
+                'data_form' => json_encode($dataForm),
+            ]);
+        } else {
+            // Jika data form penilaian belum ada, buat data baru untuk sekolah tersebut
+            FormPenilaian::create([
+                'id_sekolah' => $id_sekolah,
+                'data_form' => json_encode($dataForm),
+            ]);
+        }
+    
+        // Redirect ke halaman sebelumnya dengan pesan sukses
+        return redirect()->route('sekolah.tampilform')->with('success', 'Data form penilaian berhasil disimpan.');
+    }    
 
     public function tampilkan_form()
     {
@@ -351,6 +397,112 @@ class SekolahController extends Controller
         $formPenilaian->save();
 
         return redirect()->route('sekolah.tampilform')->with('success', 'Data form penilaian berhasil diupdate.');
+    }
+
+    public function cetakPDF($idSiswa)
+    {
+        // Ambil data siswa berdasarkan ID
+        $siswa = Siswa::findOrFail($idSiswa);
+
+        // Cari hasil penilaian berdasarkan ID siswa
+        $hasilPenilaian = HasilPenilaian::where('id_siswa', $idSiswa)->get();
+
+        // ... (kode lain untuk menghitung nilai rata-rata dan nilai total)
+        // Dekode data penilaian dari hasil penilaian
+        $dataPenilaian = [];
+        foreach ($hasilPenilaian as $hasil) {
+            $dataPenilaian[] = json_decode($hasil->data_penilaian, true);
+        }
+
+        // Dapatkan form penilaian berdasarkan ID form pada hasil penilaian
+        $formPenilaian = FormPenilaian::findOrFail($hasilPenilaian[0]->id_form);
+
+        // Dekode data kriteria penilaian dari form penilaian
+        $kriteriaPenilaian = json_decode($formPenilaian->data_form, true);
+
+        // Hitung nilai rata-rata tiap kriteria
+        $nilaiRataRata = [];
+        foreach ($kriteriaPenilaian as $kriteria) {
+            $totalNilai = 0;
+            $jumlahPenilai = 0;
+            foreach ($dataPenilaian as $data) {
+                if (isset($data[$kriteria['kriteria']])) {
+                    $totalNilai += $data[$kriteria['kriteria']];
+                    $jumlahPenilai++;
+                }
+            }
+            $rataRata = $jumlahPenilai > 0 ? $totalNilai / $jumlahPenilai : 0;
+            $nilaiRataRata[$kriteria['kriteria']] = $rataRata;
+        }
+
+        // Hitung nilai total
+        $totalRataRata = array_sum($nilaiRataRata);
+        $jumlahKriteria = count($kriteriaPenilaian);
+        $nilaiTotal = $jumlahKriteria > 0 ? $totalRataRata / $jumlahKriteria : 0;
+
+        // Dapatkan data form penilaian untuk menghitung nilai maksimal
+        $formPenilaian = FormPenilaian::findOrFail($hasilPenilaian[0]->id_form);
+        $dataFormPenilaian = json_decode($formPenilaian->data_form, true);
+
+        // Hitung nilai maksimal dari salah satu indikator sebagai acuan untuk status penilaian
+        $nilaiMaxAcuan = 0;
+        foreach ($dataFormPenilaian as $kriteria) {
+            if ($kriteria['tipe_kriteria'] === 'angka') {
+                $nilaiMaxAcuan = max($nilaiMaxAcuan, isset($kriteria['max']) ? $kriteria['max'] : 0);
+            }
+        }
+
+        // Tentukan status penilaian berdasarkan nilai total dan nilai maksimal acuan
+        $statusNilai = 'Tidak Diketahui';
+        if ($nilaiTotal >= 0.85 * $nilaiMaxAcuan) {
+            $statusNilai = 'Sangat Baik';
+        } elseif ($nilaiTotal >= 0.7 * $nilaiMaxAcuan) {
+            $statusNilai = 'Baik';
+        } elseif ($nilaiTotal >= 0.5 * $nilaiMaxAcuan) {
+            $statusNilai = 'Cukup';
+        } elseif ($nilaiTotal >= 0.35 * $nilaiMaxAcuan) {
+            $statusNilai = 'Buruk';
+        } else {
+            $statusNilai = 'Sangat Buruk';
+        }
+
+        // Buat objek Dompdf\Options dan set defaultFont
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+
+        // Load view "hasilpenilaian.blade.php" dengan menggunakan PDF::loadView()
+        $pdfView = view('sekolah.hasilnilai_pdf', [
+            'siswa' => $siswa,
+            'dataPenilaian' => $dataPenilaian,
+            'kriteriaPenilaian' => $kriteriaPenilaian,
+            'nilaiRataRata' => $nilaiRataRata,
+            'nilaiTotal' => $nilaiTotal,
+            'hasilPenilaian' => $hasilPenilaian,
+            'nilaiMaxAcuan' => $nilaiMaxAcuan, // Kirim data nilaiMaxAcuan ke view
+            'statusNilai' => $statusNilai, // Kirim data statusNilai ke view
+        ]);
+
+        // Buat objek Dompdf\Options dan set defaultFont
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+
+        // Buat objek Dompdf dan sertakan $pdfOptions
+        $dompdf = new Dompdf($pdfOptions);
+
+        $dompdf->loadHtml($pdfView);
+
+        // Set paper size dan orientasi (kertas landscape)
+        $dompdf->setPaper('A4', 'landscape');
+
+        // Load konten PDF ke Dompdf
+        $dompdf->loadHtml($pdfView);
+
+        // Render PDF
+        $dompdf->render();
+
+        // Menggunakan $dompdf->stream() untuk menampilkan PDF atau $dompdf->output() untuk menyimpannya dalam variabel
+        return $dompdf->stream('hasil_penilaian_'.$siswa->nama_siswa.'.pdf');
+
     }
 
 

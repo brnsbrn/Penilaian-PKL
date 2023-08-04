@@ -61,6 +61,7 @@
                                 </div>
                             </div>
                             <a href="{{ route('penilai.edithasilpenilaian', ['idHasilPenilaian' => $hasilPenilaian->id_hasil_penilaian]) }}" class="btn btn-info">Edit</a>
+                            <a href="{{ route('penilai.cetakpdf', ['idHasilPenilaian' => $hasilPenilaian->id_hasil_penilaian]) }}" class="btn btn-primary" style="background-color: crimson">Cetak PDF</a>
                         </div>
                     </div>
                 </div>

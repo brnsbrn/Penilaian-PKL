@@ -33,4 +33,9 @@ class HasilPenilaian extends Model
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+
+    public function formPenilaian()
+    {
+        return $this->belongsTo(FormPenilaian::class, 'id_form');
+    }
 }
